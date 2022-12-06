@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS8032: Eine Instanz des Microsoft.EntityFrameworkCore.InternalUsageDiagnosticAnalyzer-Analyzers kann nicht aus C:\Users\Flom\.nuget\packages\microsoft.entityframeworkcore.analyzers\7.0.0\analyzers\dotnet\cs\Microsoft.EntityFrameworkCore.Analyzers.dll erstellt werden: Die Datei oder Assembly "Microsoft.CodeAnalysis, Version=4.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" oder eine Abhängigkeit davon wurde nicht gefunden. Das System kann die angegebene Datei nicht finden..
+dotnet_diagnostic.CS8032.severity = none
