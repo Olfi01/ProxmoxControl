@@ -58,17 +58,17 @@ namespace ProxmoxControl
 
         private static void HandleUpdate(BotClient tg, Update update)
         {
-            try
+            switch (update.Type)
             {
-                switch (update.Type)
-                {
-                    case UpdateType.Message:
-                        HandleMessage(tg, update.Message);
-                        break;
-                }
-            } catch (Exception ex)
-            {
-                Logger.Error(ex);
+                case UpdateType.Message:
+                    Task.Run(() => HandleMessage(tg, update.Message)).ContinueWith(task =>
+                    {
+                        if (task.Status == TaskStatus.Faulted)
+                        {
+                            Logger.Error(task.Exception);
+                        }
+                    });
+                    break;
             }
         }
 

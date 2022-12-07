@@ -27,6 +27,16 @@ namespace ProxmoxControl.Telegram
             });
         }
 
+        public static Message ReplyToMessageWithKeyboard(this BotClient tg, Message message, string text, ReplyKeyboardMarkup replyMarkup)
+        {
+            return tg.SendMessage(new SendMessageArgs(message.Chat.Id, text)
+            {
+                ReplyToMessageId = message.MessageId,
+                ParseMode = ParseMode.HTML,
+                ReplyMarkup = replyMarkup
+            });
+        }
+
         public static Message ReplyToMessageClearKeys(this BotClient tg, Message message, string text)
         {
             return tg.SendMessage(new SendMessageArgs(message.Chat.Id, text)

@@ -1,4 +1,6 @@
 ﻿using Corsinvest.ProxmoxVE.Api;
+using Corsinvest.ProxmoxVE.Api.Extension;
+using Corsinvest.ProxmoxVE.Api.Shared.Models.Node;
 using ProxmoxControl.Data;
 using ProxmoxControl.Telegram;
 using System.Reflection;
@@ -65,24 +67,46 @@ namespace ProxmoxControl.Commands
             return listeners[listenerID].Invoke(message, tg);
         }
 
+        private static bool EnsureProxmoxContext(Message message, BotClient tg, out PveClient pve)
+        {
+            RegisteredChat? registeredChat = db.RegisteredChats.Find(message.Chat.Id);
+            if (registeredChat == null)
+            {
+                tg.ReplyToMessage(message, "This chat isn't registered yet! To register a chat, send /start.");
+                pve = default!;
+                return false;
+            }
+            if (registeredChat.ProxmoxHost == null || registeredChat.ProxmoxApiToken == null)
+            {
+                tg.ReplyToMessage(message, "Your host URL and API key aren't configured yet. Please set them using /config.");
+                pve = default!;
+                return false;
+            }
+            pve = new(registeredChat.ProxmoxHost)
+            {
+                ApiToken = registeredChat.ProxmoxApiToken
+            };
+            return true;
+        }
+
         [Command("/start")]
-        [Command("/register")]
+        [Command("/config")]
         public static bool RegisterChat(Message message, BotClient tg)
         {
             if (db.RegisteredChats.Find(message.Chat.Id) == null)
             {
                 db.RegisteredChats.Add(new RegisteredChat(message.Chat.Id));
                 db.SaveChanges();
-                Message sent = tg.ReplyToMessageForceReply(message, "Send me the address where I can access your Proxmox VE.");
-                Program.AddListener(new ReplyListener(sent, "set_proxmox_url"));
             }
+            Message sent = tg.ReplyToMessageForceReply(message, "Send me the address where I can access your Proxmox VE.");
+            Program.AddListener(new ReplyListener(sent, "set_proxmox_url"));
             return true;
         }
 
         private static readonly Regex urlMessageRegex = new(@"^(/seturl(@\S+bot)? )?(?<url>.*)$");
-        [Command("/config")]
+        [Command("/seturl")]
         [Listener("set_proxmox_url")]
-        public static bool Config(Message message, BotClient tg)
+        public static bool SetUrl(Message message, BotClient tg)
         {
             RegisteredChat? registeredChat = db.RegisteredChats.Find(message.Chat.Id);
             if (registeredChat == null)
@@ -169,7 +193,7 @@ namespace ProxmoxControl.Commands
             tg.ReplyToMessage(message, $"Trying to start VM {vmid} on node {node}...");
             pve.Nodes[node].Qemu[vmid].Status.Start.VmStart().ContinueWith(task =>
             {
-                if (task.Result.IsSuccessStatusCode)
+                if (task.Status == TaskStatus.RanToCompletion && task.Result.IsSuccessStatusCode)
                 {
                     tg.ReplyToMessageClearKeys(message, "Successfully started VM!");
                 }
@@ -185,17 +209,7 @@ namespace ProxmoxControl.Commands
         [Listener("stop_vm")]
         public static bool StopVM(Message message, BotClient tg)
         {
-            RegisteredChat? registeredChat = db.RegisteredChats.Find(message.Chat.Id);
-            if (registeredChat == null)
-            {
-                tg.ReplyToMessage(message, "This chat isn't registered yet! To register a chat, send /start.");
-                return true;
-            }
-            if (registeredChat.ProxmoxHost == null || registeredChat.ProxmoxApiToken == null)
-            {
-                tg.ReplyToMessage(message, "Your host URL and API key aren't configured yet. Please set them using /config.");
-                return true;
-            }
+            if (!EnsureProxmoxContext(message, tg, out PveClient pve)) return true;
             if (message.Text == null) return false;
             Match match = vmIdRegex.Match(message.Text);
             if (!match.Success)
@@ -204,22 +218,40 @@ namespace ProxmoxControl.Commands
                 Program.AddListener(new ReplyListener(sent, "stop_vm"));
                 return true;
             }
-            PveClient pve = new(registeredChat.ProxmoxHost)
-            {
-                ApiToken = registeredChat.ProxmoxApiToken
-            };
             string node = match.Groups["node"].Value;
             int vmid = int.Parse(match.Groups["vmid"].Value);
             tg.ReplyToMessage(message, $"Trying to stop VM {vmid} on node {node}...");
             pve.Nodes[node].Qemu[vmid].Status.Stop.VmStop().ContinueWith(task =>
             {
-                if (task.Result.IsSuccessStatusCode)
+                if (task.Status == TaskStatus.RanToCompletion && task.Result.IsSuccessStatusCode)
                 {
                     tg.ReplyToMessageClearKeys(message, "Successfully stopped VM!");
                 }
                 else
                 {
                     tg.ReplyToMessageClearKeys(message, "Failed to stop VM.");
+                }
+            });
+            return true;
+        }
+
+        [Command("/browse")]
+        [Command("/nodes")]
+        [Listener("list_nodes")]
+        public static bool Browse(Message message, BotClient tg)
+        {
+            if (!EnsureProxmoxContext(message, tg, out PveClient pve)) return true;
+            pve.Nodes.Get().ContinueWith(task =>
+            {
+                if (task.Status == TaskStatus.RanToCompletion)
+                {
+                    IEnumerable<NodeItem> nodes = task.Result;
+                    ReplyKeyboardMarkup replyMarkup = KeyboardHelper.GetReplyMarkupPage(nodes.Select(node => node.Node), 0);
+                    tg.ReplyToMessageWithKeyboard(message, MessageHelper.GetNodesMessage(nodes, 0), replyMarkup);
+                    Program.AddListener(new ReplyListener(message, "select_node"));
+                } else
+                {
+                    tg.ReplyToMessage(message, "Something went wrong contacting your server. Please check its availability.");
                 }
             });
             return true;

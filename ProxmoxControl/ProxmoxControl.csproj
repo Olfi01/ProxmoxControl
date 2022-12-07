@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Corsinvest.ProxmoxVE.Api" Version="7.3.4" />
+    <PackageReference Include="Corsinvest.ProxmoxVE.Api.Extension" Version="7.3.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
