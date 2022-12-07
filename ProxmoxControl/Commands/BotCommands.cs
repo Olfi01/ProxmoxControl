@@ -132,7 +132,7 @@ namespace ProxmoxControl.Commands
             }
             registeredChat.ProxmoxApiToken = match.Groups["token"].Value;
             db.SaveChanges();
-            tg.ReplyToMessage(message, "Okay, I'm all set up!");
+            tg.ReplyToMessageClearKeys(message, "Okay, I'm all set up!");
             return true;
         }
 
@@ -171,11 +171,11 @@ namespace ProxmoxControl.Commands
             {
                 if (task.Result.IsSuccessStatusCode)
                 {
-                    tg.ReplyToMessage(message, "Successfully started VM!");
+                    tg.ReplyToMessageClearKeys(message, "Successfully started VM!");
                 }
                 else
                 {
-                    tg.ReplyToMessage(message, "Failed to start VM.");
+                    tg.ReplyToMessageClearKeys(message, "Failed to start VM.");
                 }
             });
             return true;
@@ -215,11 +215,11 @@ namespace ProxmoxControl.Commands
             {
                 if (task.Result.IsSuccessStatusCode)
                 {
-                    tg.ReplyToMessage(message, "Successfully stopped VM!");
+                    tg.ReplyToMessageClearKeys(message, "Successfully stopped VM!");
                 }
                 else
                 {
-                    tg.ReplyToMessage(message, "Failed to stop VM.");
+                    tg.ReplyToMessageClearKeys(message, "Failed to stop VM.");
                 }
             });
             return true;
