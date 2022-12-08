@@ -9,6 +9,9 @@ namespace ProxmoxControl.Telegram
 {
     public class KeyboardHelper
     {
+        public const string ArrowRight = "▶️";
+        public const string ArrowLeft = "◀️";
+
         public static ReplyKeyboardMarkup GetReplyMarkupPage(IEnumerable<string> elements, int page)
         {
             List<List<KeyboardButton>> rows = new();
@@ -20,11 +23,11 @@ namespace ProxmoxControl.Telegram
             List<KeyboardButton> arrows = new();
             if (page > 0)
             {
-                arrows.Add(new KeyboardButton(":arrow_forward:"));
+                arrows.Add(new KeyboardButton(ArrowRight));
             }
             if (elements.Count() >= (page + 1) * MessageHelper.ItemsPerPage)
             {
-                arrows.Add(new KeyboardButton(":arrow_backward:"));
+                arrows.Add(new KeyboardButton(ArrowLeft));
             }
             if (arrows.Count > 0) rows.Add(arrows);
             return new(rows) { OneTimeKeyboard = true };

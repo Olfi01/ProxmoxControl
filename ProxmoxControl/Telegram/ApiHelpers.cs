@@ -46,5 +46,10 @@ namespace ProxmoxControl.Telegram
                 ReplyMarkup = new ReplyKeyboardRemove() { Selective = true }
             });
         }
+
+        public static string HtmlEscape(this string str)
+        {
+            return str.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+        }
     }
 }
