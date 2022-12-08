@@ -37,5 +37,18 @@ namespace ProxmoxControl.Telegram
             }
             return sb.ToString();
         }
+
+        public static string GetQemuVmsMessage(string node, IEnumerable<NodeVmQemu> vms, int page)
+        {
+            StringBuilder sb = new();
+            sb.AppendLine($"<b>Qemu VMs on {node.HtmlEscape()}</b> (Page {page + 1})");
+            for (int i = page * ItemsPerPage; i < (page + 1) * ItemsPerPage; i++)
+            {
+                if (i >= vms.Count()) break;
+                NodeVmQemu vm = vms.ElementAt(i);
+                sb.AppendLine($"<code>{vm.VmId}@{node.HtmlEscape()}</code> ({vm.Name.HtmlEscape()}): {vm.Status}");
+            }
+            return sb.ToString();
+        }
     }
 }
