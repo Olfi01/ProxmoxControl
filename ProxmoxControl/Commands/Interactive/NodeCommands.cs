@@ -2,6 +2,7 @@
 using Corsinvest.ProxmoxVE.Api.Extension;
 using Corsinvest.ProxmoxVE.Api.Shared.Models.Node;
 using Newtonsoft.Json;
+using ProxmoxControl.Commands.Pve;
 using ProxmoxControl.Telegram;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace ProxmoxControl.Commands.Interactive
 
         private static void SendNodesMessage(int page, Message message, BotClient tg, PveClient pve)
         {
-            pve.Nodes.Get().ContinueWith(task =>
+            pve.Nodes.GetSorted().ContinueWith(task =>
             {
                 if (task.IsCompletedSuccessfully)
                 {
@@ -108,7 +109,7 @@ namespace ProxmoxControl.Commands.Interactive
             string text = message.Text;
             Match match;
             if (message.ReplyToMessage?.Text == null
-                || !(match = selectNodeRegex.Match(message.ReplyToMessage.Text)).Success
+                || !(match = selectNodeOptionRegex.Match(message.ReplyToMessage.Text)).Success
                 || !int.TryParse(match.Groups["page"].Value, out int page))
             {
                 Logger.Error("Listener select_node_option got called with an invalid ReplyToMessage: {0}",
@@ -135,14 +136,9 @@ namespace ProxmoxControl.Commands.Interactive
                         case NodeOption.Qemu:
                             QemuCommands.SendQemuVms(0, node, message, tg, pve);
                             return true;
-                        case NodeOption.Lxc:
-                            Lxc(node, message, tg, pve);
-                            return true;
-                        case NodeOption.Services:
-                            Services(node, message, tg, pve);
-                            return true;
+                        // TODO add options
                         default:
-                            throw new NotImplementedException($"Missing option {option}!");
+                            throw new NotImplementedException($"Missing node option {option}!");
                     }
                 }
                 catch (ArgumentException)
