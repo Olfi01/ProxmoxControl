@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Telegram.BotAPI;
-using Telegram.BotAPI.AvailableTypes;
-using Telegram.BotAPI.GettingUpdates;
+﻿using Telegram.BotAPI.AvailableTypes;
 
 namespace ProxmoxControl.Commands
 {

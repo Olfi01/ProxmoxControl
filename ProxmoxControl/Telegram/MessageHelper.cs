@@ -1,12 +1,7 @@
 ﻿using Corsinvest.ProxmoxVE.Api.Shared.Models.Node;
 using Corsinvest.ProxmoxVE.Api.Shared.Models.Vm;
-using ProxmoxControl.Commands;
 using ProxmoxControl.Commands.Interactive;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ProxmoxControl.Telegram
 {

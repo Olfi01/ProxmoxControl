@@ -1,15 +1,9 @@
 ﻿using Corsinvest.ProxmoxVE.Api;
-using Corsinvest.ProxmoxVE.Api.Extension;
-using Corsinvest.ProxmoxVE.Api.Shared.Models.Node;
-using Newtonsoft.Json;
 using ProxmoxControl.Data;
 using ProxmoxControl.Telegram;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Telegram.BotAPI;
-using Telegram.BotAPI.AvailableMethods;
 using Telegram.BotAPI.AvailableTypes;
-using Telegram.BotAPI.GettingUpdates;
 
 namespace ProxmoxControl.Commands
 {

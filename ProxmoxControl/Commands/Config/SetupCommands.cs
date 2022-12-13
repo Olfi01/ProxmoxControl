@@ -1,11 +1,6 @@
 ﻿using ProxmoxControl.Data;
 using ProxmoxControl.Telegram;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Telegram.BotAPI;
 using Telegram.BotAPI.AvailableTypes;
 
